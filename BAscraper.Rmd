@@ -1,0 +1,115 @@
+---
+title: "Beer Review Scraper"
+author: "Neil Ritter"
+date: "7/14/2017"
+output: html_document
+---
+
+```{r}
+
+library(rvest)
+
+```
+
+##
+
+
+```{r}
+
+read_html("https://www.beeradvocate.com/lists/top/")
+
+```
+
+
+## SelectorGadget
+
+Note - used SelectorGadget Chrome extension by Andrew Cantino and Kyle Maxwell to find appropriate CSS selectors. 
+
+```{r}
+# all beer names
+names <- html_nodes(x, ".hr_bottom_light a b")
+
+```
+
+
+```{r}
+# Get all beer links
+
+# find all links on page
+all_links <- html_attr(html_nodes(x, "a"), "href")
+
+# all brewery and beer links
+brew_beer_links <- all_links[grep("/beer/profile/", all_links)]
+
+# beer links happen to be the odd indices of this list
+beer_links <- brew_beer_links[seq(1,500,2)]
+
+
+```
+
+
+
+```{r}
+# Get beer page object or class ... talk to Margo
+beer <- read_html(paste("https://www.beeradvocate.com", beer_links[5], sep = ""))
+
+```
+
+## Methods for Beer
+
+```{r}
+# Get beer name
+beer_name <- html_nodes(beer, "h1")
+```
+
+```{r}
+# Get beer rating
+beer_rating <- html_nodes(beer, ".ba-score")
+
+```
+
+```{r}
+# Get beer brewery
+beer_brewery <- html_nodes(beer, ".titleBar span")
+
+```
+
+```{r}
+# Get ABV ... unsure how to do this
+
+```
+
+```{r}
+# Get up to first 25 user ratings
+html_nodes(beer, "br+ .muted")
+
+```
+
+```{r}
+# Get text of up to first 25 user reviews
+beer_thing <- html_nodes(beer, "#rating_fullview_content_2")
+beer_text <- html_text(beer_thing[5])
+```
+
+
+
+```{r}
+# Beer WordCloud!!! Maybe 1 of high and 1 of low user ratings
+# Build word cloud from Beer object
+
+
+```
+
+```{r}
+# Beer stacked histogram (smoothed) for looking at taste, smell, etc ...
+# Build from Beer Object
+
+```
+
+```{r}
+# look at your beer reviews and recommend beers based on your reviews ... beers like beers you reviewed outside of classic style similarities
+
+
+```
+
+
