@@ -16,7 +16,7 @@ library(rvest)
 
 ```{r}
 
-read_html("https://www.beeradvocate.com/lists/top/")
+top <- read_html("https://www.beeradvocate.com/lists/top/")
 
 ```
 
@@ -27,7 +27,7 @@ Note - used SelectorGadget Chrome extension by Andrew Cantino and Kyle Maxwell t
 
 ```{r}
 # all beer names
-names <- html_nodes(x, ".hr_bottom_light a b")
+names <- html_nodes(top, ".hr_bottom_light a b")
 
 ```
 
@@ -36,7 +36,7 @@ names <- html_nodes(x, ".hr_bottom_light a b")
 # Get all beer links
 
 # find all links on page
-all_links <- html_attr(html_nodes(x, "a"), "href")
+all_links <- html_attr(html_nodes(top, "a"), "href")
 
 # all brewery and beer links
 brew_beer_links <- all_links[grep("/beer/profile/", all_links)]
@@ -81,14 +81,19 @@ beer_brewery <- html_nodes(beer, ".titleBar span")
 
 ```{r}
 # Get up to first 25 user ratings
-html_nodes(beer, "br+ .muted")
+beer_ratings <- html_nodes(beer, "br+ .muted")
 
 ```
 
 ```{r}
-# Get text of up to first 25 user reviews
+# Get raw text of up to first 25 user reviews
 beer_thing <- html_nodes(beer, "#rating_fullview_content_2")
 beer_text <- html_text(beer_thing[5])
+
+# Write beer text to file
+fileConn <- file("/Users/Drazi/beerwizard/test_text")
+writeLines(html_text(beer_thing),fileConn)
+close(fileConn)
 ```
 
 
