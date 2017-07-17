@@ -26,7 +26,8 @@ test_corpus <- tm_map(test_corpus, content_transformer(tolower))
 test_corpus <- tm_map(test_corpus, removePunctuation)
 test_corpus <- tm_map(test_corpus, removeNumbers)
 test_corpus <- tm_map(test_corpus, removeWords, 
-                      c('I', 'Im', 'Ive', stopwords('english')))
+                      c('i', 'im', 'ive', 'look', 'smell', 'taste',
+                        'feel', 'rdev', 'overall', 'beer', stopwords('english')))
 test_corpus <- tm_map(test_corpus, stemDocument)
 
 

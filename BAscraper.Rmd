@@ -1,5 +1,5 @@
 ---
-title: "Beer Review Scraper"
+title: "Beer Advocate Beer Info Scraper"
 author: "Neil Ritter"
 date: "7/14/2017"
 output: html_document
@@ -11,109 +11,124 @@ library(rvest)
 
 ```
 
-##
-
-
-```{r}
-
-top <- read_html("https://www.beeradvocate.com/lists/top/")
-
-```
-
-
-## SelectorGadget
+## Step 1: Get BeerAdvocate top 250 beer profile URLs 
 
 Note - used SelectorGadget Chrome extension by Andrew Cantino and Kyle Maxwell to find appropriate CSS selectors. 
 
 ```{r}
-# all beer names
-names <- html_nodes(top, ".hr_bottom_light a b")
+# Read in BA page with top 250 beers on it
+top <- read_html("https://www.beeradvocate.com/lists/top/")
 
 ```
 
-
 ```{r}
-# Get all beer links
+# Get all beer links in top
 
 # find all links on page
 all_links <- html_attr(html_nodes(top, "a"), "href")
 
-# all brewery and beer links
+# this gets all brewery links and beer links
 brew_beer_links <- all_links[grep("/beer/profile/", all_links)]
 
-# beer links happen to be the odd indices of this list
+# beer and brewery links happen to alternate and beer links are odd
 beer_links <- brew_beer_links[seq(1,500,2)]
 
-
 ```
 
 
+## Step 2: Read in pages and comments for each beer and blat to text files
+
+The beer profile page contains a maximum of 25 comments. Which comments appear are reflected in the URL of the page, e.g. 
+
+https://www.beeradvocate.com/beer/profile/17981/110635/?view=beer&sort=&start=50
+
+you will see ratings 50 through 75. This lets us iterate through pages via the URL to get all the ratings/comments (only some of the ratings actually have comments).
 
 ```{r}
-# Get beer page object or class ... talk to Margo
-beer <- read_html(paste("https://www.beeradvocate.com", beer_links[5], sep = ""))
-
-```
-
-## Methods for Beer
-
-```{r}
-# Get beer name
-beer_name <- html_nodes(beer, "h1")
-```
-
-```{r}
-# Get beer rating
-beer_rating <- html_nodes(beer, ".ba-score")
-
-```
-
-```{r}
-# Get beer brewery
-beer_brewery <- html_nodes(beer, ".titleBar span")
-
-```
-
-```{r}
-# Get ABV ... unsure how to do this
-
+# Helper function to get number of ratings for a beer
+get_num_ratings <- function(beer_link){
+  
+  # read in beer page
+  beer <- read_html(paste("https://www.beeradvocate.com", beer_link, sep = ""))
+  
+  # get number of user ratings
+  num_beer_ratings <- html_nodes(beer, "br+ .ba-ratings")
+  
+  # get rid of commas in character representation of number and then convert to numeric
+  return(num_beer_ratings <- as.numeric(gsub(",","",html_text(num_beer_ratings))))
+  
+}
 ```
 
 ```{r}
-# Get up to first 25 user ratings
-beer_ratings <- html_nodes(beer, "br+ .muted")
+# Helper function to read in all ratings for a beer
+
+get_beer_ratings <- function(beer_link) {
+  
+  # get number of pages to iterate through
+  num_pages <- floor(get_num_ratings(beer_link) / 25)
+  
+  # store each page for beer in list ... will all be same except for ratings
+  beer_ratings <- list()
+  
+  for(page in 1:num_pages){
+    
+    index <- page * 25 # index added at end of URL to iterate through ratings
+    beer_page <- read_html(paste("https://www.beeradvocate.com", 
+                                        beer_link, "?view=beer&sort=&start=", 
+                                        index, sep = ""))
+    ratings <- html_nodes(beer_page, "#rating_fullview_content_2")
+    beer_ratings <- c(beer_ratings, ratings)
+  }
+  
+  return(beer_ratings)
+  
+}
+```
+
+```{r}
+# Helper function to blat beer ratings into text file
+save_ratings <- function(beer_ratings, path){
+  
+  # not really sure why I have to do this to get at text in beer reviews
+  text <- list()
+  for(i in 1:length(beer_ratings)){text <- c(text, html_text(beer_ratings[[i]]))}
+  
+  # Write all beer ratings to text file
+  fileConn <- file(path)
+  writeLines(as.character(text),fileConn)
+  close(fileConn)
+}
 
 ```
 
 ```{r}
-# Get raw text of up to first 25 user reviews
-beer_thing <- html_nodes(beer, "#rating_fullview_content_2")
-beer_text <- html_text(beer_thing[5])
-
-# Write beer text to file
-fileConn <- file("/Users/Drazi/beerwizard/test_text")
-writeLines(html_text(beer_thing),fileConn)
-close(fileConn)
-```
-
-
-
-```{r}
-# Beer WordCloud!!! Maybe 1 of high and 1 of low user ratings
-# Build word cloud from Beer object
+# Read in all ratings for each beer and save to text files.
+for(i in 1:length(beer_links)){
+  
+  beer_ratings <- get_beer_ratings(beer_links[i])
+  path <- paste("/Users/Drazi/beerwizard/corpra/", "beer_", i, sep = "")
+  save_ratings(beer_ratings, path)
+  
+}
 
 
 ```
 
 ```{r}
-# Beer stacked histogram (smoothed) for looking at taste, smell, etc ...
-# Build from Beer Object
+# Get beer profile page for each beer
+beer_profiles = list()
 
-```
 
-```{r}
-# look at your beer reviews and recommend beers based on your reviews ... beers like beers you reviewed outside of classic style similarities
-
+for(i in 1:length(beer_links)){
+  
+  # read in beer page
+  beer_profile <- read_html(paste("https://www.beeradvocate.com", 
+                                  beer_links[i], sep = ""))
+  
+  beer_profiles[[i]] <- beer_profile
+  
+}
 
 ```
 

@@ -1,4 +1,0 @@
-name, brewery
-beer_1, brewery_1
-beer_2, brewery_2
-
