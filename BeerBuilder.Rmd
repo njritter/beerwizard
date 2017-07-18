@@ -11,9 +11,13 @@ library(stringr)
 
 ```
 
-
 ## Methods for getting beer info from beer profile
 
+```{r}
+index <- 1
+beer <- read_html(paste("/Users/Drazi/beerwizard/data/test_profiles/profile_", index, sep = ""))
+
+```
 
 ```{r}
 # Get beer name
@@ -28,7 +32,7 @@ get_beer_name <- function(beer_profile){
 
 ```{r}
 # Get beer brewery
-get_beer_brewery <- function(){
+get_beer_brewery <- function(beer){
   
   brewery_name <- html_nodes(beer, ".titleBar span")
   # note - have to escape pipe symbol with two backslashes, e.g. \\|
@@ -57,6 +61,38 @@ get_beer_user_rating <- function(beer_profile){
 # Get ABV
 
 ```
+
+
+```{r}
+# Build beer information table
+
+beerInfo <- data.frame(name = NA,
+                       brewery = NA,
+                       rating = 1:10) # makes data frame have 10 rows
+                       
+for(i in 1:10){
+  beer <- read_html(
+    paste("/Users/Drazi/beerwizard/data/test_profiles/profile_", i, sep = ""))
+  
+  beerInfo$name[i] <- get_beer_name(beer)
+  beerInfo$brewery[i] <- get_beer_brewery(beer)
+  beerInfo$rating[i] <- get_beer_user_rating(beer)
+}
+
+```
+
+
+```{r}
+# Save beerInfo
+
+write.csv(beerInfo,
+          file = "/Users/Drazi/beerwizard/data/test_profiles/test_beer_info.txt")
+
+```
+
+
+
+
 
 
 

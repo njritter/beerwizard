@@ -1,0 +1,40 @@
+---
+title: "WordcloudBuilder"
+author: "Neil Ritter"
+date: "7/17/2017"
+output: html_document
+---
+
+```{r}
+library(wordcloud)
+library(tm)
+
+```
+
+
+```{r}
+
+test_corpus <- Corpus(DirSource("/Users/Drazi/beerwizard/data/test_corpra/"))
+
+```
+
+```{r}
+
+test_corpus <- tm_map(test_corpus, content_transformer(tolower))
+test_corpus <- tm_map(test_corpus, removePunctuation)
+test_corpus <- tm_map(test_corpus, removeNumbers)
+test_corpus <- tm_map(test_corpus, removeWords, 
+                      c('i', 'im', 'ive', 'look', 'smell', 'taste',
+                        'feel', 'rdev', 'overall', 'beer', stopwords('english')))
+test_corpus <- tm_map(test_corpus, stemDocument)
+
+
+```
+
+
+
+
+
+
+
+

@@ -8,38 +8,27 @@
 #
 
 library(shiny)
-library(dplyr)
-library(tidyr)
 library(ggplot2)
-library(ggjoy)
 library(wordcloud)
-library(tm)
 
 # Load beer data
-beers <- read.csv("/Users/Drazi/beerwizard/testdata.txt", stringsAsFactors = FALSE)
-beer_ratings <- read.csv("/Users/Drazi/beerwizard/testdata_ratings.csv", stringsAsFactors = FALSE)
-beer_ratings <- gather(beer_ratings)
-
-# Wordcloud Stuff
-test_corpus <- Corpus(DirSource("/Users/Drazi/beerwizard/test_corpra/"))
-test_corpus <- tm_map(test_corpus, content_transformer(tolower))
-test_corpus <- tm_map(test_corpus, removePunctuation)
-test_corpus <- tm_map(test_corpus, removeNumbers)
-test_corpus <- tm_map(test_corpus, removeWords, 
-                      c('i', 'im', 'ive', 'look', 'smell', 'taste',
-                        'feel', 'rdev', 'overall', 'beer', stopwords('english')))
-test_corpus <- tm_map(test_corpus, stemDocument)
-
+beers <- read.csv("/Users/Drazi/beerwizard/data/test_profiles/test_beer_info.txt")
+cloud <- readRDS("/Users/Drazi/beerwizard/data/test_corpra/test_cloud.rds")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
-  output$brewery <- renderText(as.character(beers$brewery[2]))
-   
-  output$joyPlot <- renderPlot({ggplot(data = beer_ratings, 
-                                        aes(x = value, y = key)) + geom_joy()})
+  vals <- reactiveValues()
+  observe({
+    vals$index <- grep(input$beer, beers$name)
+  })
   
-  output$wordCloud <- renderPlot({wordcloud(test_corpus)})
+  output$brewery <- renderText({as.character(beers$brewery[vals$index])})
+  output$rating <- renderText({as.numeric(beers$rating[vals$index])})
+   
+  output$wordCloud <- renderPlot({
+    wordcloud(cloud[vals$index], max.words = 100, scale = c(10,1))
+    })
   
   
 })

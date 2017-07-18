@@ -119,7 +119,6 @@ for(i in 1:length(beer_links)){
 # Get beer profile page for each beer
 beer_profiles = list()
 
-
 for(i in 1:length(beer_links)){
   
   # read in beer page
@@ -127,6 +126,18 @@ for(i in 1:length(beer_links)){
                                   beer_links[i], sep = ""))
   
   beer_profiles[[i]] <- beer_profile
+  
+}
+
+```
+
+```{r}
+
+for(i in 1:length(beer_profiles)){
+  
+  path <- paste("/Users/Drazi/beerwizard/data/profiles/profile_", i, sep = "" )
+  write_xml(beer_profiles[[i]], file = path)
+  
   
 }
 
