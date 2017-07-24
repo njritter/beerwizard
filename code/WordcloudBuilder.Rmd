@@ -1,0 +1,102 @@
+---
+title: "WordcloudBuilder"
+author: "Neil Ritter"
+date: "7/17/2017"
+output: html_document
+---
+
+```{r}
+library(NLP)
+library(wordcloud)
+library(RColorBrewer)
+library(tm)
+library(tidytext)
+
+```
+
+## Step 1 - Read in corpus of documents and do basic preprocessing
+
+```{r}
+
+#test_corpus <- Corpus(DirSource("/Users/Drazi/beerwizard/data/test_corpra/"))
+test_corpus <- Corpus(DirSource("/Users/Drazi/beerwizard/data/corpra/"))
+```
+
+```{r}
+
+# look at getTransformations for available tm_map transforms
+
+# test_corpus <- tm_map(test_corpus, stripWhitespace)
+test_corpus <- tm_map(test_corpus, content_transformer(tolower))
+test_corpus <- tm_map(test_corpus, removePunctuation)
+test_corpus <- tm_map(test_corpus, removeNumbers)
+test_corpus <- tm_map(test_corpus, removeWords, stopwords('english'))
+test_corpus <- tm_map(test_corpus, stemDocument)
+
+# remove additional words that popped up
+test_corpus <- tm_map(test_corpus, removeWords, c('i', 'im', 'ive', 'look', 'smell', 'taste','feel', 'rdev', 'overall', 'beer', 'jan', 'feb','mar','apr', 'may','jun','aug','oct','nov','dec'))
+
+```
+
+```{r}
+# To save corpus
+saveRDS(test_corpus, file = "/Users/Drazi/beerwizard/data/test_cloud.rds")
+
+```
+
+
+## Step 2 - Represent text quantitatively
+
+```{r}
+# Document term matrix
+tdm <- TermDocumentMatrix(corpus)
+tdm <- removeSparseTerms(tdm, 0.9)
+tdm <- weightTfIdf(tdm, normalize = TRUE)
+tdm <- as.matrix(tdm)
+
+```
+
+
+```{r}
+# Additional preprocessing
+
+# Replace column names with names of beer instead of beer_1, etc
+beer_profiles <- read.csv("/Users/Drazi/beerwizard/data/test_profiles/test_beer_info.txt")
+beer_names <- beer_profiles$name
+colnames(tdm) <- beer_names
+
+
+```
+
+```{r}
+
+# Replace column names with names of beer instead of beer_1, etc ... for 250
+beer_profiles <- read.csv("/Users/Drazi/beerwizard/data/top250/profiles/beer_info.txt")
+beer_names <- beer_profiles$name
+
+
+# beers in alphabetical not numerical order ><
+x <- 1:250
+x <- as.character(x)
+x <- order(x)
+beer_names <- beer_names[x]
+
+colnames(tdm) <- beer_names
+  
+  
+```
+
+
+```{r}
+# To save term document matrix
+write.table(tdm, file = "/Users/Drazi/beerwizard/data/test_tdm.csv")
+
+```
+
+
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+"","name","brewery","rating"
+"1","Kentucky Brunch Brand Stout","Toppling Goliath Brewing Company",100
+"10","Mornin' Delight","Toppling Goliath Brewing Company",100
+"2","Good Morning","Tree House Brewing Company",100
+"3","Very Hazy","Tree House Brewing Company",100
+"4","King Julius","Tree House Brewing Company",100
+"5","Hunahpu's Imperial Stout - Double Barrel Aged","Cigar City Brewing",100
+"6","Pliny The Younger","Russian River Brewing Company",100
+"7","King JJJuliusss","Tree House Brewing Company",100
+"8","Barrel-Aged Abraxas","Perennial Artisan Ales",100
+"9","Heady Topper","The Alchemist Brewery and Visitors Center",100

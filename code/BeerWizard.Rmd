@@ -1,0 +1,86 @@
+---
+title: "Data Incubator Submission"
+author: "Neil Ritter"
+date: "7/23/2017"
+output: html_document
+---
+
+## BeerWizard Plots 1 and 2
+
+1. Profile pages and user ratings/reviews for top 250 BeerAdvocate beers were scraped from https://www.beeradvocate.com/lists/top/ 
+
+2. All text from user ratings/reviews for each beer was extracted
+
+3. Text was preprocessed: converted to lowercase, removed punctuation, numbers, common stopwords, some additional selected words, and stemmed. 
+
+4. Each set of reviews for a beer (document in corpus) was represented numerically by a weighted measure of term frequency (term frequency-inverse document frequency, or tf-idf).
+
+5. Wordclouds made for each beer. See Plot 1 for example.
+
+6. All 250 beers were clustered (distance measure: euclidean, clustering: hierarchical). See Plot 2.
+
+
+```{r}
+# Load data for plots. This is the numerical representation of text mentioned in Step 4. Rows are words and columns are tf-idf scores of words for each document.
+tdm <- readRDS("/Users/Drazi/Desktop/tdm.rds")
+
+# Load generic beer information scraped from beeradvocate. Includes beer name, brewery, style, rating, and color code (for plotting) for top 250 beers.
+beerInfo <- readRDS("/Users/Drazi/Desktop/beer_info.rds")
+
+```
+
+## Plot 1
+
+Here is a wordcloud describing the top rated beer at the time of scraping: Kentucky Brunch Brand Stout. Does a pretty good job despite very basic text processing! There were 610 user ratings, but only 117 reviews of any substance for this beer.
+
+I also made a web app to explore all 250 beers:
+https://njritter.shinyapps.io/beerwizard/
+
+```{r}
+library(RColorBrewer)
+library(wordcloud)
+
+wordcloud(rownames(tdm), tdm[ ,1], max.words = 100, 
+              random.order = FALSE, scale = c(5,1))
+```
+
+## Plot 2
+
+The Beer Judge Certification Program (BJCP) has a list of guidelines for bining your beer into a particular style bucket. They aren't completely useless, but beer style is insufficient information to determine if you will like a beer. I also believe style will become less and less useful as a beer descriptor as craft brewers continue to experiment and follow their taste buds.
+
+Here the top 250 beers on beeradvocate.com are clustered using data mined from user reviews.
+
+Some thoughts/observations:
+- Stouts (black) and IPAs (green) mostly landed opposite of each other
+- The wild ales (blue) mostly landed in the same area as the Lambics (red), which is definitely where I would put them. Suspect wild ales (blue) that landed in the stouts (black) were due to shared barrel aged descriptors and those that landed in the IPA (green) due to fruit often being added to wild ales and fruit words being used for both hop aroma/taste.
+- Nut Smasher, Trademark Dispute: Hazlenut, and Grey Monday are all beers containing nuts that got grouped together.
+
+
+```{r}
+# Compute distance between beers
+distMatrix <- dist(t(tdm))
+
+# Cluster beers
+groups <- hclust(distMatrix)
+
+```
+
+
+```{r fig.width=12, fig.height=12}
+library(ape)
+# Plot fan dendrogram
+plot(as.phylo(groups), type = "fan", cex = 0.4,
+     tip.color = as.character(beerInfo$color), label.offset = 0.001)
+
+# Key
+# Black: Imperial Stout / Russian Imperial Stout
+# Green: Imperial IPA / American IPA
+# Gold: American Pale Ale
+# Brown: American Porter
+# Red: Lambic / Lambic - Unblended / Gueuze
+# Blue: Saison / American Wild Ale
+# Gray (12 dif styles with less than 10 reviews each)
+
+```
+
+

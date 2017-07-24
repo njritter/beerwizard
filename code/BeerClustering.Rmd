@@ -1,0 +1,120 @@
+---
+title: "BeerClustering"
+author: "Neil Ritter"
+date: "7/17/2017"
+output: html_document
+---
+
+
+```{r}
+library(NLP)
+library(tm)
+library(tidyr)
+library(tidytext)
+library(SnowballC)
+library(lsa)
+
+```
+
+
+```{r}
+
+distMatrix <- dist(t(tdm))
+
+```
+
+
+```{r}
+# Clustering
+groups <- hclust(distMatrix)
+
+
+```
+
+
+```{r}
+# Plot normal dendrogram
+plot(groups, hang = -1, cex = 0.2)
+
+
+```
+
+
+```{r}
+# Color vector for dendrogram
+colors <- c("black", #[2] Imperial Stout
+            "gold", # American Pale Ale
+            "green", #[5] Imperial IPA
+            "red", #[1] Lambic
+            "black", #[2] Russian Imperial Stout
+            "brown", # American Porter
+            "red", #[1] Gueuze
+            "gray", #[0] Berliner Weissbier
+            "blue", # American Wild Ale
+            "gray", #[0] Quad
+            "gray", #[0] Dubbel
+            "green", #[5] American IPA
+            "orange", # Saison / Farmhouse Ale
+            "gray", #[0] Oatmeal Stout
+            "gray", #[0] American Barleywine
+            "gray", #[0] English Barleywine
+            "gray", #[0] Old Ale
+            "gray", #[0] Milk / Sweet Stout
+            "gray", #[0] Flanders Red
+            "gray", #[0] American Strong Ale
+            "gray", #[0] Hefeweizen
+            "gray", #[0] American Stout
+            "red") #[1] Lambic - Unlbended
+            
+
+styles <- beerInfo$style
+styles <- gsub("[[:punct:]]", " ", styles)
+unique_styles <- unique(styles)
+unique_styles <- gsub("[[:punct:]]", " ", unique_styles)
+char <- character(length(styles))
+
+for(i in 1:length(styles)){
+  
+  style_index <- grep(styles[i], unique_styles)
+  char[i] <- colors[style_index]
+  
+}
+
+  
+  
+  
+```
+
+
+```{r}
+# Plot fan dendrogram
+plot(as.phylo(groups), type = "fan", cex = 0.25,
+     tip.color = char, label.offset = 0.001)
+
+```
+
+
+
+# Bag of words
+
+
+# Blame
+
+
+# Recommendations (beer pandora)
+
+
+- Word to Vec / Facebook FastText
+- How people talk about beers (need a lot of data)
+- Comparing user profiles
+- Combine with user ratings (outcome is user rating)
+
+- How would this be used in practice / turn into a company
+- 20 taps, which beers to put on tap?
+- Region info
+
+
+
+
+
+

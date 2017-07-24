@@ -12,22 +12,25 @@ library(ggplot2)
 library(wordcloud)
 
 # Load beer data
-beers <- read.csv("/Users/Drazi/beerwizard/data/test_profiles/test_beer_info.txt")
-cloud <- readRDS("/Users/Drazi/beerwizard/data/test_corpra/test_cloud.rds")
+beerInfo <- readRDS("beer_info.rds")
+tdm <- readRDS("tdm.rds")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
   vals <- reactiveValues()
   observe({
-    vals$index <- grep(input$beer, beers$name)
+    styles <- 
+    vals$index <- grep(paste0("^", input$beer, "$"),beerInfo$name)
   })
   
-  output$brewery <- renderText({as.character(beers$brewery[vals$index])})
-  output$rating <- renderText({as.numeric(beers$rating[vals$index])})
-   
+  output$brewery <- renderText({as.character(beerInfo$brewery[vals$index])})
+  output$style <- renderText({as.character(beerInfo$style[vals$index])})
+  output$rating <- renderText({as.numeric(beerInfo$rating[vals$index])})
+  
   output$wordCloud <- renderPlot({
-    wordcloud(cloud[vals$index], max.words = 100, scale = c(10,1))
+    wordcloud(rownames(tdm), tdm[ ,vals$index], max.words = 100, 
+              random.order = FALSE, scale = c(5,1))
     })
   
   
